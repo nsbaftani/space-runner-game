@@ -1,0 +1,50 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install Buildozer
+      run: |
+        pip install --upgrade pip
+        pip install buildozer
+        pip install cython==0.29.33
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y python3-pip python3-venv python3-dev \
+          ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev \
+          libsdl2-ttf-dev libegl1-mesa-dev libgles2-mesa-dev \
+          libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+          libportmidi-dev libswscale-dev libavformat-dev \
+          libavcodec-dev libunwind-dev zlib1g-dev \
+          autoconf libtool pkg-config \
+          libncurses5-dev libncursesw5-dev libtinfo5 \
+          cmake libffi-dev libssl-dev \
+          openjdk-17-jdk
+    
+    - name: Build APK
+      run: |
+        buildozer android debug
+      timeout-minutes: 30
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: spacerunner-apk
+        path: bin/*.apk
