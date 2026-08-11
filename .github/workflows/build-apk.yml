@@ -8,22 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Install Buildozer
       run: |
         pip install --upgrade pip
         pip install buildozer
         pip install cython==0.29.33
-    
+
     - name: Install system dependencies
       run: |
         sudo apt update
@@ -37,13 +37,14 @@ jobs:
           libncurses5-dev libncursesw5-dev libtinfo5 \
           cmake libffi-dev libssl-dev \
           openjdk-17-jdk
-    
+
     - name: Build APK
       run: |
         buildozer android debug
-      timeout-minutes: 30
-    
+      timeout-minutes: 45
+
     - name: Upload APK
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: spacerunner-apk
